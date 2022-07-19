@@ -7,6 +7,7 @@ const erc721BytecodePath = './erc721.bytecode'
 const CaverExtKAS = require('caver-js-ext-kas');
 const chainId = '1001';
 const KASCred = require('./kas-cred.json')
+const { createClient } = require('caver-js-ext-kas/src/utils/helper')
 const accessKeyId = KASCred.accessKeyId
 const secretAccessKey = KASCred.secretAccessKey
 const caverKAS = new CaverExtKAS(chainId, accessKeyId, secretAccessKey, '', );
@@ -14,6 +15,7 @@ const caverKAS = new CaverExtKAS(chainId, accessKeyId, secretAccessKey, '', );
 const erc721ContractAddr = '0xee468aEF23d782405770215dD2Cc2ccE190d6e80'
 const kip17ContractAddr = '0x50AEd97606ed62f4E4FF41F72eBCcAfa746d2474'
 const deployerAddr = '0x2da5cf382f950db077b7ab332471fa9496b94de4'
+const walletUrl = "https://wallet-api.klaytnapi.com"
 
 const tokenId = '2'
 const myKASAccountAddress = '0x5CA2813f02B6adab098103cdBc17AfEf38291ec7'
@@ -69,6 +71,9 @@ async function getOwnershipERC721UsingKAS() {
     try {
         // This does not work if the contract is not deployed by KAS KIP-17 API.
         // const ret = await caverKAS.kas.kip17.getContract(erc721ContractAddr)
+        // console.log(ret)
+
+        // const ret = await caverKAS.kas.kip17.getTokenListByOwner(erc721ContractAddr, myKASAccountAddress)
         // console.log(ret)
 
         const contractInfo = await caverKAS.kas.tokenHistory.getNFTContract(erc721ContractAddr)
@@ -127,6 +132,25 @@ async function transferERC721() {
     }
 }
 
+async function getAccountList() {
+    try {
+        const query = {
+            size: 10,
+        }
+        const {client, accessOptions} = createClient(walletUrl, chainId, accessKeyId, secretAccessKey)
+        caverKAS.kas.wallet.accessOptions = accessOptions
+        caverKAS.kas.wallet.client = client
+        caverKAS.kas.wallet.client.defaultHeaders = {'x-krn':'krn:1001:wallet:f202bc70-c602-4b60-995f-4c1c58afb440:account-pool:test'}
+
+        const res = await caverKAS.kas.wallet.getAccountList(query)
+        console.log(res)
+    } catch(err) {
+        console.log(err)
+    }
+
+}
+
+
 async function createKeystore() {
     var read = require('read')
     read({ prompt: 'Password: ', silent: true }, function(er, password) {
@@ -161,6 +185,8 @@ async function loadKeystore() {
 // Test a keystore to deploy a contract
 // createKeystore()
 
+getAccountList()
+
 // Deploy ERC-721 token contract.
 // deployERC721()
 
@@ -172,7 +198,7 @@ async function loadKeystore() {
 
 // get ownership of the NFT
 // getOwnershipERC721UsingKAS()
-getOwnershipERC721UsingCaver()
+// getOwnershipERC721UsingCaver()
 
 // transfer ERC-721 token using wallet API
 // transferERC721()

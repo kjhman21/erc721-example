@@ -147,6 +147,22 @@ async function getAccountList() {
     } catch(err) {
         console.log(err)
     }
+}
+
+async function decodeInput() {
+    const sender = myKASAccountAddress
+    const owner = myKASAccountAddress
+    const to = myKASAccountAddress
+    
+    try {
+        const abi = JSON.parse(fs.readFileSync(erc721AbiPath))
+        const contractInstance = caver.contract.create(abi, erc721ContractAddr)
+        const input = '0x42842e0e0000000000000000000000005ca2813f02b6adab098103cdbc17afef38291ec70000000000000000000000005ca2813f02b6adab098103cdbc17afef38291ec70000000000000000000000000000000000000000000000000000000000000002'
+        const result = contractInstance.decodeFunctionCall(input)
+        console.log(result)
+    } catch(err) {
+        console.log(err)
+    }
 
 }
 
@@ -185,7 +201,7 @@ async function loadKeystore() {
 // Test a keystore to deploy a contract
 // createKeystore()
 
-getAccountList()
+// getAccountList()
 
 // Deploy ERC-721 token contract.
 // deployERC721()
@@ -202,3 +218,5 @@ getAccountList()
 
 // transfer ERC-721 token using wallet API
 // transferERC721()
+
+decodeInput()
